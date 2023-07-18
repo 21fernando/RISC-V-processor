@@ -22,12 +22,9 @@ def main():
     with open(outfile, 'w') as file:
         for insn in insns:
             binary_insn = bin(int(insn, 16))[2:].zfill(32)
-            file.write(binary_insn[0:8] + '\n')
-            file.write(binary_insn[8:16] + '\n')
-            file.write(binary_insn[16:24] + '\n')
-            file.write(binary_insn[24:32] + '\n')
-        for i in range(mem_size - 4*len(insns)):
-            file.write("00000000\n")
+            file.write(binary_insn + '\n')
+        for i in range(mem_size - len(insns)):
+            file.write("00000000000000000000000000000000\n")
     print("Success!")            
 
 if __name__ == "__main__":

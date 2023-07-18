@@ -71,7 +71,7 @@ module processor(
     assign PC_plus = PC_out + 4;
     assign PC_in = (E_branched_jumped) ? E_PC_target : ((stall) ? PC_out : PC_plus);
 
-    assign address_imem = {20'd0, PC_out};
+    assign address_imem = {22'd0, PC_out[11:2]};
     
     fd_latch fd_latch_a(
         .clock(clock),
@@ -229,7 +229,7 @@ module processor(
     assign M_regfile_B_byp = (M_W_M_byp) ? W_write_data : M_regfile_B;
      
     // Dmem
-    assign address_dmem = M_alu_out;
+    assign address_dmem = {2'd0, M_alu_out[31:2]};
     assign data = M_regfile_B_byp;
     assign access_type = M_insn[14:12];
     assign wren = M_insn[6:0] == 7'b0100011;

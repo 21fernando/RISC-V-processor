@@ -33,7 +33,7 @@
  *
  **/
 
-module Wrapper_tb #(parameter FILE = "nop");
+module Wrapper_tb #(parameter FILE = "arithmetic");
 
 	// FileData
 	localparam DIR = "Test/";

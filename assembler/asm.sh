@@ -1,5 +1,8 @@
 #!/bin/bash
 
+#!/bin/bash
+
+
 # Check if an argument is provided
 if [ $# -eq 0 ]; then
   echo "No file specified."
@@ -8,9 +11,27 @@ fi
 
 # Store the first command line argument in a variable
 program=$1
-root="/Users/tharindu2003/Documents/FPGA/processor"
-assembly_file="${root}/Test/Assembly/${program}.s"
-memory_file="${root}/Test/Memory/${program}.mem"
+
+platform=$(uname)
+
+root=""
+assembly_file=""
+memory_file=""
+if [[ "$platform" == "Darwin" ]]; then
+  # Running on macOS
+  root="/Users/tharindu2003/Documents/FPGA/processor"
+  assembly_file="${root}/Test/Assembly/${program}.s"
+  memory_file="${root}/Test/Memory/${program}.mem"
+else
+  # Default case
+  root="C:\\Users\\taf27\\Documents\\FPGA\\RISC-V-processor\\"
+  assembly_file="${root}\\Test\\Assembly\\${program}.s"
+  memory_file="${root}\\Test\\Memory\\${program}.mem"
+fi
+echo $root
+echo $assembly_file
+echo $memory_file
+
 if [ ! -f "$assembly_file" ]; then
   echo "File not found: $assembly_file"
   exit 1

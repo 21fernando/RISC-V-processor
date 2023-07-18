@@ -1,18 +1,18 @@
 `timescale 1ns / 1ps
-module ROM #(parameter DATA_WIDTH = 8, ADDRESS_WIDTH = 14, DEPTH = 16384, MEMFILE = "") (
+module ROM #(parameter DATA_WIDTH = 8, ADDRESS_WIDTH = 14, DEPTH = 16383, MEMFILE = "C:\Users\taf27\Documents\FPGA\RISC-V-processor\Test\Assembly\arithmetic.mem") (
     input wire                     clk,
     input wire [13:0]              addr,
     output reg [31:0]    dataOut = 0);
     
-    reg[7:0] MemoryArray[0:16383];
+    reg[31:0] MemoryArray[0:16383];
     
     initial begin
         if(MEMFILE > 0) begin
-            $readmemb(MEMFILE, MemoryArray);
+            $readmemb("C:/Users/taf27/Documents/FPGA/RISC-V-processor/Test/Memory/arithmetic.mem", MemoryArray);
         end
     end
     
     always @(posedge clk) begin
-        dataOut <= {MemoryArray[addr], MemoryArray[addr+1], MemoryArray[addr+2], MemoryArray[addr+3]};
+        dataOut <=  MemoryArray[addr];
     end
 endmodule
