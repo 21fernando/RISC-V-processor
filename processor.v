@@ -35,7 +35,7 @@ module processor(
 
     // Regfile
     output ctrl_writeEnable,               // O: Write enable for RegFile
-    output [4:0] ctrl_writeReg,            // O: Register to write to in RegFile
+    output [4:0] ctrl_writeReg,            // O: Register to in RegFile
     output [4:0] ctrl_readRegA,            // O: Register to read from port A of RegFile
     output [4:0] ctrl_readRegB,            // O: Register to read from port B of RegFile
     output [31:0] data_writeReg,           // O: Data to write to for RegFile

@@ -52,6 +52,11 @@ module Wrapper_tb #(parameter FILE = "arithmetic");
 	wire[31:0] instAddr, instData, 
 		rData, regA, regB,
 		memAddr, memDataIn, memDataOut;
+	wire [3:0] VGA_R; 
+	wire [3:0] VGA_G;
+	wire [3:0] VGA_B; 
+	wire       VGA_HS;
+	wire       VGA_VS;
 
 	// Wires for Test Harness
 	wire[4:0] rs1_test, rs1_in;
@@ -110,13 +115,42 @@ module Wrapper_tb #(parameter FILE = "arithmetic");
 		.data_writeReg(rData), .data_readRegA(regA), .data_readRegB(regB));
 						
 	// Processor Memory (RAM)
-	RAM ProcMem(.clk(clock), 
-		.wEn(mwe), 
-		.addr(memAddr[13:0]), 
-		.dataIn(memDataIn), 
-		.dataOut(memDataOut),
-		.access_type(access_type));
+	//RAM ProcMem(.clk(clock), 
+	//	.wEn(mwe), 
+	//	.addr(memAddr[13:0]), 
+	//	.dataIn(memDataIn), 
+	//	.dataOut(memDataOut),
+	//	.access_type(access_type));
+	wire wEn_io;
+	wire [11:0] addr_io;
+	wire [31:0] memDataIn_io, memDataOut_io;
+	DualRWRAM #(.DATA_WIDTH(32), 	
+				.ADDRESS_WIDTH(12), 
+				.DEPTH(4096))
+	ProcMem(.clk(clock), 
+		.wEn_cpu(mwe), 
+		.addr_cpu(memAddr[11:0]), 
+		.dataIn_cpu(memDataIn), 
+		.dataOut_cpu(memDataOut),
+		.access_type(access_type),
+		.wEn_io(wEn_io), 
+		.addr_io(addr_io), 
+		.dataIn_io(memDataIn_io), 
+		.dataOut_io(memDataOut_io)
+	);
 
+	io IO(
+		.wEn(wEn_io),
+		.addr(addr_io),
+		.memDataIn(memDataIn_io),
+		.memDataOut(memDataOut_io),
+		.clk(clock),
+		.VGA_R(VGA_R), 
+		.VGA_G(VGA_G),
+		.VGA_B(VGA_B), 
+		.VGA_HS(VGA_HS),
+		.VGA_VS(VGA_VS)
+	);
 	// Create the clock
 	always
 		#10 clock = ~clock; 

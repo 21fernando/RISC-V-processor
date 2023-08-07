@@ -8,7 +8,7 @@ module ROM #(parameter DATA_WIDTH = 8, ADDRESS_WIDTH = 14, DEPTH = 16383, MEMFIL
     
     initial begin
         if(MEMFILE > 0) begin
-            $readmemb("C:/Users/taf27/Documents/FPGA/RISC-V-processor/Test/Memory/arithmetic.mem", MemoryArray);
+            $readmemb("C:/Users/taf27/Documents/FPGA/RISC-V-processor/Test/Memory/vga.mem", MemoryArray);
         end
     end
     

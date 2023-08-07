@@ -24,8 +24,15 @@
  *
  **/
 
-module Wrapper (clock, reset);
-	input clock, reset;
+module Wrapper (
+	input        clock, 
+	input        reset,
+	output [3:0] VGA_R, 
+	output [3:0] VGA_G,
+	output [3:0] VGA_B, 
+	output       VGA_HS,
+	output       VGA_VS
+);
 
 	wire rwe, mwe;
 	wire [2:0] access_type;
@@ -33,7 +40,7 @@ module Wrapper (clock, reset);
 	wire[31:0] instAddr, instData, 
 		rData, regA, regB,
 		memAddr, memDataIn, memDataOut;
-
+	
 
 	// ADD YOUR MEMORY FILE HERE
 	localparam INSTR_FILE = "arithmetic.mem";
@@ -68,11 +75,41 @@ module Wrapper (clock, reset);
 		.data_writeReg(rData), .data_readRegA(regA), .data_readRegB(regB));
 						
 	// Processor Memory (RAM)
-	RAM ProcMem(.clk(clock), 
-		.wEn(mwe), 
-		.addr(memAddr[11:0]), 
-		.dataIn(memDataIn), 
-		.dataOut(memDataOut),
-		.access_type(access_type));
+	//RAM ProcMem(.clk(clock), 
+	//	.wEn(mwe), 
+	//	.addr(memAddr[11:0]), 
+	//	.dataIn(memDataIn), 
+	//	.dataOut(memDataOut),
+	//	.access_type(access_type));
+	wire wEn_io;
+	wire [11:0] addr_io;
+	wire [31:0] memDataIn_io, memDataOut_io;
+	DualRWRAM #(.DATA_WIDTH(32), 	
+				.ADDRESS_WIDTH(12), 
+				.DEPTH(4096))
+	ProcMem(.clk(clock), 
+		.wEn_cpu(mwe), 
+		.addr_cpu(memAddr[11:0]), 
+		.dataIn_cpu(memDataIn), 
+		.dataOut_cpu(memDataOut),
+		.access_type(access_type),
+		.wEn_io(wEn_io), 
+		.addr_io(addr_io), 
+		.dataIn_io(memDataIn_io), 
+		.dataOut_io(memDataOut_io)
+		);
+
+	io IO(
+		.wEn(wEn_io),
+    	.addr(addr_io),
+    	.memDataIn(memDataIn_io),
+    	.memDataOut(memDataOut_io),
+    	.clk(clock),
+    	.VGA_R(VGA_R), 
+    	.VGA_G(VGA_G),
+    	.VGA_B(VGA_B), 
+    	.VGA_HS(VGA_HS),
+    	.VGA_VS(VGA_VS)
+	);
 
 endmodule
