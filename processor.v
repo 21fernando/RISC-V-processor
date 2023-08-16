@@ -27,11 +27,12 @@ module processor(
     input [31:0] q_imem,                  // I: The data from imem
 
     // Dmem
-    output [31:0] address_dmem,           // O: The address of the data to get or put from/to dmem
-    output[31:0] data,                    // O: The data to write to dmem
-    output wren,                          // O: Write enable for dmem
-    output [2:0] access_type,
-    input [31:0] q_dmem,                  // I: The data from dmem
+    output [31:0] cpu_addr,           // O: The address of the data to get or put from/to dmem
+    output[31:0] cpu_write_data,                    // O: The data to write to dmem
+    output cpu_write_en,                          // O: Write enable for dmem
+    output [2:0] cpu_read_type,
+    input [31:0] cpu_read_data,                  // I: The data from dmem
+    output cpu_device_id,
 
     // Regfile
     output ctrl_writeEnable,               // O: Write enable for RegFile
@@ -159,8 +160,13 @@ module processor(
 
     assign E_alu_op_a = E_regfile_A_byp;
     assign E_alu_op_b = (E_not_immed_insn) ? E_regfile_B_byp:  E_sx_immed; 
-    assign E_alu_opcode = (E_insn[4:0] == 5'b10011) ? {E_insn[30] ,E_insn[14:12]} : 
-                            (E_insn[6:4] == 3'b110) ? 4'b1000 : 4'b0000;
+    wire [20:0] E_alu_opcode_bottom;
+    wire E_alu_opcode_top;
+    assign E_alu_opcode_bottom = (E_insn[4:0] == 5'b10011) ? E_insn[14:12] :  3'b000;
+    assign E_alu_opcode_top = (E_insn[6:0] == 7'b0110011) ? E_insn[30] : 
+                                (E_insn[6:0] == 7'b0010011 && E_insn[14:12] == 3'd5) ? E_insn[30] :
+                                (E_insn[6:4] == 3'b110) ? 1'b1 : 1'b0;
+    assign E_alu_opcode = {E_alu_opcode_top, E_alu_opcode_bottom};
     alu alu_a(
         .data_operandA(E_alu_op_a), 
         .data_operandB(E_alu_op_b), 
@@ -229,17 +235,20 @@ module processor(
     assign M_regfile_B_byp = (M_W_M_byp) ? W_write_data : M_regfile_B;
      
     // Dmem
-    assign address_dmem = {2'd0, M_alu_out[31:2]};
-    assign data = M_regfile_B_byp;
-    assign access_type = M_insn[14:12];
-    assign wren = M_insn[6:0] == 7'b0100011;
+    assign cpu_addr = {2'd0, M_alu_out[31:2]};
+    assign cpu_write_data = M_regfile_B_byp;
+    assign cpu_read_type = M_insn[14:12];
+    assign cpu_write_en = M_insn[6:0] == 7'b0100011;
+
+    //IO
+    assign cpu_device_id = (M_insn[6:0] == 7'b0100011 && M_alu_out == 32'd2032) ? 1'b1 : 1'b0;
 
     mw_latch mw_latch_a(
         .clock(clock),
         .reset(reset),
         .i_insn(M_insn),
         .i_ALU_O(M_alu_out),
-        .i_mem_D(q_dmem),
+        .i_mem_D(cpu_read_data),
         .o_insn(W_insn),
         .o_ALU_O(W_alu_o),
         .o_mem_D(W_mem_D)

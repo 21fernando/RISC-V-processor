@@ -4,7 +4,7 @@ nop
 nop
 init: 
 addi sp, zero, 256        # sp = 256
-addi 27, zero, 3840       # 27 = 3840 address for bottom of heap
+addi 27, zero, 2044       # 27 = 3840 address for bottom of heap
 addi t0, zero, 50
 addi t1, zero, 3
 sw t1, 0(t0)

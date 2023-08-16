@@ -32,5 +32,10 @@ processor.v
 RAM.v
 regfile.v
 ROM.v
+system_bus.v
+VGA_counter.v
+RAM_simple.v
+VGA.v
+io.v
 Wrapper_tb.v
 Wrapper.v

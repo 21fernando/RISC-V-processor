@@ -1,8 +1,8 @@
 module io (
-    output            wEn,
-    output  [11:0]    addr,
-    output  [31:0]    memDataIn,
-    input wire [31:0] memDataOut,
+    input            wEn,
+    input  [31:0]    addr,
+    input  [31:0]    dataIn,
+    output  [31:0] dataOut,
     input             clk,
     output [3:0]      VGA_R, 
     output [3:0]      VGA_G,
@@ -21,9 +21,7 @@ module io (
         .image_word(image_word)
     );
 
-    assign wEn = 1'b0;
-    assign addr = 12'd1000;
-    assign memDataIn = 31'd0;
-    assign image_word = memDataOut;
+    assign dataOut = 31'd0;
+    assign image_word = dataIn;
 
 endmodule

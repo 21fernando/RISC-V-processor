@@ -9,6 +9,7 @@ module VGA(
     input [31:0] image_word
     );
 
+    /**
     wire VGA_clk;
     wire locked;
     clk_wiz_0 pll(
@@ -16,7 +17,8 @@ module VGA(
         .reset(1'b0), 
         .locked(locked),
         .clk_in1(clk_100MHz)
-    );
+    );**/
+    assign VGA_clk = clk_100MHz;
     
     wire active;
     wire [10:0] x_pos;
@@ -40,7 +42,7 @@ module VGA(
     assign image_wEn = image_word[23];
     assign image_ram_addr = (image_wEn) ? image_addr : {y_pos[6:4] , x_pos};
     RAM_simple #( .DATA_WIDTH(8), 
-                  .ADDRESS_WIDTH(14),
+                  .ADDRESS_WIDTH(15),
                   .DEPTH(16384)) 
     imagr_ram(
         .clk(clk_100MHz),
@@ -53,8 +55,8 @@ module VGA(
     //Color ROM: Supports 256 colors
     wire [7:0] color_addr;
     wire [11:0] color_data;
-
-    ROM #(.MEMFILE("C:/Users/taf27/Documents/FPGA/Verilog_VGA/Verilog_VGA.srcs/sources_1/new/color_palette.mem"),
+    //C:/Users/taf27/Documents/FPGA/Verilog_VGA/Verilog_VGA.srcs/sources_1/new/color_palette.mem
+    ROM #(.MEMFILE("/Users/tharindu2003/Documents/FPGA/processor/color_palette.mem"),
             .DATA_WIDTH(12),
             .ADDRESS_WIDTH(8),
             .DEPTH(256))
