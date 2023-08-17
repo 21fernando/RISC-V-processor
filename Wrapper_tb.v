@@ -33,7 +33,7 @@
  *
  **/
 
-module Wrapper_tb #(parameter FILE = "arithmetic");
+module Wrapper_tb #(parameter FILE = "vga");
 
 	// FileData
 	localparam DIR = "Test/";
@@ -63,6 +63,7 @@ module Wrapper_tb #(parameter FILE = "arithmetic");
     wire [31:0] io_read_data;
     wire [31:0] io_write_data;
     wire io_write_en;
+    wire io_device_id;
 
 	wire rwe;
 	wire[4:0] rd, rs1, rs2;
@@ -118,7 +119,8 @@ module Wrapper_tb #(parameter FILE = "arithmetic");
 		.io_addr(io_addr),      //From cpu to io
 		.io_read_data(io_read_data),       //From io to cpu
 		.io_write_data(io_write_data),     //From cpu to io
-		.io_write_en(io_write_en)
+		.io_write_en(io_write_en),
+		.io_device_id(io_device_id)
 	);
 
 	// Main Processing Unit
@@ -144,11 +146,16 @@ module Wrapper_tb #(parameter FILE = "arithmetic");
 		.cpu_read_data(cpu_read_data),
 		.cpu_device_id(cpu_device_id)); 
 	
-	// Instruction Memory (ROM)
-	ROM #(.MEMFILE({DIR, MEM_DIR, FILE, ".mem"}), .DATA_WIDTH(32), .ADDRESS_WIDTH(14), .DEPTH(16384))
-	InstMem(.clk(clock), 
-		.addr(instAddr[13:0]), 
-		.dataOut(instData));
+	// Instruction Memory (ROM) Windows
+	ROM #(.MEMFILE({FILE, ".mem"}), .DATA_WIDTH(32), .ADDRESS_WIDTH(14), .DEPTH(16384))
+        InstMem(.clk(clock), 
+            .addr(instAddr[13:0]), 
+            .dataOut(instData));
+	// Instruction Memory (ROM) MAC
+//	ROM #(.MEMFILE({DIR, MEM_DIR, FILE, ".mem"}), .DATA_WIDTH(32), .ADDRESS_WIDTH(14), .DEPTH(16384))
+//	InstMem(.clk(clock), 
+//		.addr(instAddr[13:0]), 
+//		.dataOut(instData));
 	
 	// Register File
 	regfile RegisterFile(
@@ -169,6 +176,8 @@ module Wrapper_tb #(parameter FILE = "arithmetic");
     	.dataIn(io_write_data),
     	.dataOut(io_read_data),
     	.clk(clock),
+    	.io_device_id(io_device_id),
+    	.VGA_clk(clock),
     	.VGA_R(VGA_R), 
     	.VGA_G(VGA_G),
     	.VGA_B(VGA_B), 

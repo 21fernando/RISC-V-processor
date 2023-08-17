@@ -16,7 +16,8 @@ module system_bus(
     output [31:0] io_addr,      //From cpu to io
     input [31:0] io_read_data,       //From io to cpu
     output reg [31:0] io_write_data,     //From cpu to io
-    output reg io_write_en
+    output reg io_write_en,
+    output io_device_id
 );
     //CPU read
     assign memory_addr = cpu_addr;
@@ -46,5 +47,7 @@ module system_bus(
             end
         endcase
     end
+    
+    assign io_device_id = cpu_device_id;
 
 endmodule

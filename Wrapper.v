@@ -35,7 +35,7 @@ module Wrapper (
 );
 	
 	// ADD YOUR MEMORY FILE HERE
-	localparam INSTR_FILE = "arithmetic.mem";
+	localparam INSTR_FILE = "vga.mem";
 
 	wire [31:0] cpu_addr;
     wire [2:0] cpu_read_type;
@@ -58,90 +58,99 @@ module Wrapper (
 	wire rwe;
 	wire[4:0] rd, rs1, rs2;
 	wire[31:0] instAddr, instData, rData, regA, regB;
+    wire VGA_clk;
+    wire locked;
+    clk_wiz_0 pll(
+        .clk_out1(VGA_clk),            
+        .reset(1'b0), 
+        .locked(locked),
+        .clk_in1(clock)
+        );	
 	
 	system_bus sys_bus(
-		.cpu_addr(cpu_addr),      //From cpu to peripheral
-		.cpu_read_type(cpu_read_type),
-		.cpu_read_data(cpu_read_data),     //From peripheral to cpu
-		.cpu_device_id(cpu_device_id), 
-		.cpu_write_data(cpu_write_data),     //From cpu to peripheral
-		.cpu_write_en(cpu_write_en),
+        .cpu_addr(cpu_addr),      //From cpu to peripheral
+        .cpu_read_type(cpu_read_type),
+        .cpu_read_data(cpu_read_data),     //From peripheral to cpu
+        .cpu_device_id(cpu_device_id), 
+        .cpu_write_data(cpu_write_data),     //From cpu to peripheral
+        .cpu_write_en(cpu_write_en),
 
-		.memory_addr(memory_addr),  //From cpu to memory
-		.memory_read_type(memory_read_type),
-		.memory_read_data(memory_read_data),   //From memory to cpu
-		.memory_write_data(memory_write_data), //From cpu to memory
-		.memory_write_en(memory_write_en),
+        .memory_addr(memory_addr),  //From cpu to memory
+        .memory_read_type(memory_read_type),
+        .memory_read_data(memory_read_data),   //From memory to cpu
+        .memory_write_data(memory_write_data), //From cpu to memory
+        .memory_write_en(memory_write_en),
 
-		.io_addr(io_addr),      //From cpu to io
-		.io_read_data(io_read_data),       //From io to cpu
-		.io_write_data(io_write_data),     //From cpu to io
-		.io_write_en(io_write_en)
-	);
+        .io_addr(io_addr),      //From cpu to io
+        .io_read_data(io_read_data),       //From io to cpu
+        .io_write_data(io_write_data),     //From cpu to io
+        .io_write_en(io_write_en)
+    );
 
-	// Main Processing Unit
-	processor CPU(
-		.clock(clock), 
-		.reset(reset), 
-		//Imem
-		.address_imem(instAddr), 
-		.q_imem(instData),
-		//Regfile
-		.ctrl_writeEnable(rwe),     
-		.ctrl_writeReg(rd),
-		.ctrl_readRegA(rs1),     
-		.ctrl_readRegB(rs2), 
-		.data_writeReg(rData), 
-		.data_readRegA(regA), 
-		.data_readRegB(regB),					
-		//System Bus
-		.cpu_addr(cpu_addr),
-		.cpu_write_data(cpu_write_data),
-		.cpu_write_en(cpu_write_en),
-		.cpu_read_type(cpu_read_type),
-		.cpu_read_data(cpu_read_data),
-		.cpu_device_id(cpu_device_id)); 
-	
-	// Instruction Memory (ROM)
-	ROM #(.MEMFILE({INSTR_FILE, ".mem"}))
-	InstMem(.clk(clock), 
-		.addr(instAddr[13:0]), 
-		.dataOut(instData));
-	
-	// Register File
-	regfile RegisterFile(
-		.clock(clock), 
-		.ctrl_writeEnable(rwe), 
-		.ctrl_reset(reset), 
-		.ctrl_writeReg(rd),
-		.ctrl_readRegA(rs1), 
-		.ctrl_readRegB(rs2), 
-		.data_writeReg(rData), 
-		.data_readRegA(regA), 
-		.data_readRegB(regB));
+    // Main Processing Unit
+    processor CPU(
+        .clock(clock), 
+        .reset(reset), 
+        //Imem
+        .address_imem(instAddr), 
+        .q_imem(instData),
+        //Regfile
+        .ctrl_writeEnable(rwe),     
+        .ctrl_writeReg(rd),
+        .ctrl_readRegA(rs1),     
+        .ctrl_readRegB(rs2), 
+        .data_writeReg(rData), 
+        .data_readRegA(regA), 
+        .data_readRegB(regB),                    
+        //System Bus
+        .cpu_addr(cpu_addr),
+        .cpu_write_data(cpu_write_data),
+        .cpu_write_en(cpu_write_en),
+        .cpu_read_type(cpu_read_type),
+        .cpu_read_data(cpu_read_data),
+        .cpu_device_id(cpu_device_id)); 
+    
+    // Instruction Memory (ROM)
+    ROM #(.MEMFILE(INSTR_FILE), .DATA_WIDTH(32), .ADDRESS_WIDTH(14), .DEPTH(16384))
+    InstMem(.clk(clock), 
+        .addr(instAddr[13:0]), 
+        .dataOut(instData));
+    
+    // Register File
+    regfile RegisterFile(
+        .clock(clock), 
+        .ctrl_writeEnable(rwe), 
+        .ctrl_reset(reset), 
+        .ctrl_writeReg(rd),
+        .ctrl_readRegA(rs1), 
+        .ctrl_readRegB(rs2), 
+        .data_writeReg(rData), 
+        .data_readRegA(regA), 
+        .data_readRegB(regB));
 
-	//IO controller
-	io IO(
-		.wEn(io_write_en),
-    	.addr(io_addr),
-    	.dataIn(io_write_data),
-    	.dataOut(io_read_data),
-    	.clk(clock),
-    	.VGA_R(VGA_R), 
-    	.VGA_G(VGA_G),
-    	.VGA_B(VGA_B), 
-    	.VGA_HS(VGA_HS),
-    	.VGA_VS(VGA_VS)
-	);
+    //IO controller
+    io IO(
+        .wEn(io_write_en),
+        .addr(io_addr),
+        .dataIn(io_write_data),
+        .dataOut(io_read_data),
+        .VGA_clk(VGA_clk),
+        .VGA_R(VGA_R), 
+        .VGA_G(VGA_G),
+        .VGA_B(VGA_B), 
+        .VGA_HS(VGA_HS),
+        .VGA_VS(VGA_VS)
+    );
 
-	//RAM
-	RAM #(.DATA_WIDTH(8), .ADDRESS_WIDTH(14), .DEPTH(4096))
-	dram(
-    .clk(clock),
-    .wEn(memory_write_en),
-    .addr(memory_addr),
-    .access_type(memory_read_type),
-    .dataIn(memory_write_data),
-    .dataOut(memory_read_data));
+    //RAM
+    RAM #(.DATA_WIDTH(8), .ADDRESS_WIDTH(14), .DEPTH(4096))
+    dram(
+        .clk(clock),
+        .wEn(memory_write_en),
+        .addr(memory_addr[13:0]),
+        .access_type(memory_read_type),
+        .dataIn(memory_write_data),
+        .dataOut(memory_read_data)
+    );
 
 endmodule

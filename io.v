@@ -4,6 +4,8 @@ module io (
     input  [31:0]    dataIn,
     output  [31:0] dataOut,
     input             clk,
+    input io_device_id,
+    input VGA_clk,
     output [3:0]      VGA_R, 
     output [3:0]      VGA_G,
     output [3:0]      VGA_B, 
@@ -12,7 +14,9 @@ module io (
 );
     wire [31:0] image_word;
     VGA vga(
-        .clk_100MHz(clk), 
+        .VGA_clk(VGA_clk),
+        .clock(clk),
+        .io_device_id(io_device_id), 
         .VGA_R(VGA_R), 
         .VGA_G(VGA_G),
         .VGA_B(VGA_B), 
