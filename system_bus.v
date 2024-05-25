@@ -6,6 +6,8 @@ module system_bus(
     input cpu_device_id, 
     input [31:0] cpu_write_data,     //From cpu to peripheral
     input cpu_write_en,
+    output cpu_interrupt,
+    output [4:0] cpu_interrupt_id,
 
     output [31:0] memory_addr,  //From cpu to memory
     output [2:0] memory_read_type,
@@ -16,9 +18,19 @@ module system_bus(
     output [31:0] io_addr,      //From cpu to io
     input [31:0] io_read_data,       //From io to cpu
     output reg [31:0] io_write_data,     //From cpu to io
+<<<<<<< HEAD
     output reg io_write_en,
     output io_device_id
+=======
+    output reg io_write_en
+    input io_interrupt,
+    input [4:0] io_interrupt_id
+>>>>>>> bc82f29 (working on interrupt flow)
 );
+    //Interrupt Signals:
+    assign cpu_interrupt = io_interrupt;
+    assign cpu_interrupt_id = io_interrupt_id;
+
     //CPU read
     assign memory_addr = cpu_addr;
     assign io_addr = cpu_addr;
@@ -32,7 +44,6 @@ module system_bus(
     end
 
     //CPU write
-
     always @(*) begin
         memory_write_data <= cpu_write_data;
         io_write_data <= cpu_write_data;

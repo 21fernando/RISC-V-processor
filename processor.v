@@ -41,8 +41,11 @@ module processor(
     output [4:0] ctrl_readRegB,            // O: Register to read from port B of RegFile
     output [31:0] data_writeReg,           // O: Data to write to for RegFile
     input [31:0] data_readRegA,            // I: Data from port A of RegFile
-    input [31:0]data_readRegB              // I: Data from port B of RegFile
+    input [31:0]data_readRegB,              // I: Data from port B of RegFile
 	 
+    // IO
+    input io_interrupt,
+    input [4:0] io_interrupt_id
 	);
 
     //Stall wire
