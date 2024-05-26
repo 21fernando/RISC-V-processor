@@ -1,6 +1,5 @@
 module csr(
-    input clock,
-    input 
+    input clock
 );
 
 endmodule

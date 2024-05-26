@@ -36,6 +36,7 @@
 ./RAM.v
 ./processor.v
 ./RAM_simple.v
+./Wrapper_tb_old.v
 ./regfile.v
 ./ROM.v
 ./VGA_counter.v

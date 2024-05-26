@@ -66,7 +66,7 @@ module VGA(
     wire [11:0] color_data;
     //Windows: C:/Users/taf27/Documents/FPGA/Verilog_VGA/Verilog_VGA.srcs/sources_1/new/color_palette.mem
     // Mac:/Users/tharindu2003/Documents/FPGA/processor/color_palette.mem
-    ROM #(.MEMFILE("C:/Users/taf27/Documents/FPGA/RISC-V-processor/color_palette.mem"),
+    ROM #(.MEMFILE("/Users/tharindu2003/Documents/FPGA/processor/color_palette.mem"),
             .DATA_WIDTH(12),
             .ADDRESS_WIDTH(8),
             .DEPTH(256))

@@ -1,9 +1,5 @@
 module io (
     input             clk,
-<<<<<<< HEAD
-    input io_device_id,
-    input VGA_clk,
-=======
     input             wEn,
     input  [31:0]     addr,
     input  [31:0]     dataIn,
@@ -11,12 +7,12 @@ module io (
     output reg        interrupt,
     output reg [4:0]  interrupt_id,
     input  [15:0]     SW,
->>>>>>> bc82f29 (working on interrupt flow)
     output [3:0]      VGA_R, 
     output [3:0]      VGA_G,
     output [3:0]      VGA_B, 
     output            VGA_HS,
-    output            VGA_VS
+    output            VGA_VS,
+    input            VGA_clk
 );
     wire [31:0] image_word;
     VGA vga(

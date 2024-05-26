@@ -24,18 +24,17 @@
  *
  **/
 
-module Wrapper (
+module Wrapper #(parameter INSTR_FILE = "/Users/tharindu2003/Documents/FPGA/processor/Test/Memory/vga.mem")(
 	input        clock, 
 	input        reset,
+    input [15:0]    SW,
 	output [3:0] VGA_R, 
 	output [3:0] VGA_G,
 	output [3:0] VGA_B, 
 	output       VGA_HS,
-	output       VGA_VS
+	output       VGA_VS,
+    output       VGA_clk
 );
-	
-	// ADD YOUR MEMORY FILE HERE
-	localparam INSTR_FILE = "vga.mem";
 
 	wire [31:0] cpu_addr;
     wire [2:0] cpu_read_type;
@@ -55,17 +54,20 @@ module Wrapper (
     wire [31:0] io_write_data;
     wire io_write_en;
 
+    wire interrupt;
+    wire [4:0] interrupt_id;
+
 	wire rwe;
 	wire[4:0] rd, rs1, rs2;
 	wire[31:0] instAddr, instData, rData, regA, regB;
-    wire VGA_clk;
+    assign VGA_clk = clock;
     wire locked;
-    clk_wiz_0 pll(
-        .clk_out1(VGA_clk),            
-        .reset(1'b0), 
-        .locked(locked),
-        .clk_in1(clock)
-        );	
+    // clk_wiz_0 pll(
+    //     .clk_out1(VGA_clk),            
+    //     .reset(1'b0), 
+    //     .locked(locked),
+    //     .clk_in1(clock)
+    //     );	
 	
 	system_bus sys_bus(
         .cpu_addr(cpu_addr),      //From cpu to peripheral
@@ -108,7 +110,11 @@ module Wrapper (
         .cpu_write_en(cpu_write_en),
         .cpu_read_type(cpu_read_type),
         .cpu_read_data(cpu_read_data),
-        .cpu_device_id(cpu_device_id)); 
+        .cpu_device_id(cpu_device_id),
+        //Interrupt
+        .io_interrupt(interrupt),
+        .io_interrupt_id(interrupt_id)
+        ); 
     
     // Instruction Memory (ROM)
     ROM #(.MEMFILE(INSTR_FILE), .DATA_WIDTH(32), .ADDRESS_WIDTH(14), .DEPTH(16384))
@@ -130,10 +136,14 @@ module Wrapper (
 
     //IO controller
     io IO(
+        .clk(clock),
         .wEn(io_write_en),
         .addr(io_addr),
         .dataIn(io_write_data),
         .dataOut(io_read_data),
+        .interrupt(interrupt),
+        .interrupt_id(interrupt_id),
+        .SW(SW),
         .VGA_clk(VGA_clk),
         .VGA_R(VGA_R), 
         .VGA_G(VGA_G),
